@@ -9,8 +9,11 @@ app.use(cors());
 const AUTH = "http://localhost:5000";
 const USER = "http://localhost:5001";
 const INVENTORY = "http://localhost:5002";
+const SUPPLIER = "http://localhost:5003";
+const COST = "http://localhost:5004";
 const FINANCE = "http://localhost:5005";
 const REPORTS = "http://localhost:5006";
+const NOTIFICATIONS = "http://localhost:5007";
 
 // AUTH SERVICE
 app.use("/auth", async (req, res) => {
@@ -154,6 +157,96 @@ app.use("/reports", async (req, res) => {
 
   } catch (err) {
     console.log("Reports Gateway error:", err.message);
+
+    return res.status(err.response?.status || 500).json({
+      success: false,
+      message: err.response?.data || err.message,
+    });
+  }
+});
+
+// SUPPLIER SERVICE
+app.use("/supplier", async (req, res) => {
+  try {
+    const path = req.originalUrl.replace("/supplier", "");
+
+    console.log("Supplier Gateway hit:", req.method, path);
+
+    const response = await axios({
+      method: req.method,
+      url: `${SUPPLIER}/api/supplier${path}`,
+      data: req.body,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: req.headers.authorization || "",
+      },
+      timeout: 5000,
+    });
+
+    return res.status(response.status).json(response.data);
+
+  } catch (err) {
+    console.log("Supplier Gateway error:", err.message);
+
+    return res.status(err.response?.status || 500).json({
+      success: false,
+      message: err.response?.data || err.message,
+    });
+  }
+});
+
+// COST INTELLIGENCE SERVICE
+app.use("/cost", async (req, res) => {
+  try {
+    const path = req.originalUrl.replace("/cost", "");
+
+    console.log("Cost Gateway hit:", req.method, path);
+
+    const response = await axios({
+      method: req.method,
+      url: `${COST}/api/cost${path}`,
+      data: req.body,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: req.headers.authorization || "",
+      },
+      timeout: 5000,
+    });
+
+    return res.status(response.status).json(response.data);
+
+  } catch (err) {
+    console.log("Cost Gateway error:", err.message);
+
+    return res.status(err.response?.status || 500).json({
+      success: false,
+      message: err.response?.data || err.message,
+    });
+  }
+});
+
+// NOTIFICATION SERVICE
+app.use("/notifications", async (req, res) => {
+  try {
+    const path = req.originalUrl.replace("/notifications", "");
+
+    console.log("Notification Gateway hit:", req.method, path);
+
+    const response = await axios({
+      method: req.method,
+      url: `${NOTIFICATIONS}/api/notifications${path}`,
+      data: req.body,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: req.headers.authorization || "",
+      },
+      timeout: 5000,
+    });
+
+    return res.status(response.status).json(response.data);
+
+  } catch (err) {
+    console.log("Notification Gateway error:", err.message);
 
     return res.status(err.response?.status || 500).json({
       success: false,
