@@ -27,7 +27,7 @@ const sendTokenResponse = (res, statusCode, user, token) => {
 // ================= REGISTER =================
 exports.register = async (req, res) => {
   try {
-    console.log("🔥 Register API hit");
+    console.log("Register API hit");
 
     const { error, value } = registerSchema.validate(req.body, { abortEarly: false });
 

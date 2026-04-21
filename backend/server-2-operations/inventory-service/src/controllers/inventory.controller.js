@@ -42,12 +42,22 @@ exports.updateStock = async (req, res) => {
     const { itemId } = req.params;
     const { change, type, supplierId } = req.body;
 
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing",
+      });
+    }
+
     const result = await inventoryService.updateStock(
       itemId,
       req.user.companyId,
       change,
       type,
-      supplierId
+      supplierId,
+      token
     );
 
     res.status(200).json({
@@ -78,5 +88,22 @@ exports.deleteItem = async (req, res) => {
       success: false,
       message: err.message,
     });
+  }
+};
+
+exports.updateReorder = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { reorderLevel, reorderQuantity } = req.body;
+
+    const item = await InventoryItem.findOneAndUpdate(
+      { _id: itemId, companyId: req.user.companyId },
+      { reorderLevel, reorderQuantity },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, item });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
   }
 };

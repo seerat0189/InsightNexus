@@ -1,9 +1,5 @@
 const Notification = require("../models/Notification");
 
-// ──────────────────────────────────────────────
-// NOTIFICATION OPERATIONS
-// ──────────────────────────────────────────────
-
 exports.createNotification = async (data) => {
   const notification = await Notification.create(data);
   return notification;

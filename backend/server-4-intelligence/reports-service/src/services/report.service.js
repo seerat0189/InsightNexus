@@ -1,10 +1,12 @@
 const axios = require("axios");
 
-const INVENTORY = process.env.INVENTORY_SERVICE_URL;
-const FINANCE = process.env.FINANCE_SERVICE_URL;
+const {
+  INVENTORY_SERVICE,
+  FINANCE_SERVICE,
+} = require("../../../../shared/constants/serviceUrls");
 
 exports.getInventorySummary = async (token) => {
-  const res = await axios.get(`${INVENTORY}/api/inventory`, {
+  const res = await axios.get(`${INVENTORY_SERVICE}/api/inventory`, {
     headers: { Authorization: token },
   });
 
@@ -22,7 +24,7 @@ exports.getInventorySummary = async (token) => {
 };
 
 exports.getFinanceSummary = async (token) => {
-  const res = await axios.get(`${FINANCE}/api/finance`, {
+  const res = await axios.get(`${FINANCE_SERVICE}/api/finance`, {
     headers: { Authorization: token },
   });
 
@@ -44,13 +46,17 @@ exports.getFinanceSummary = async (token) => {
 };
 
 exports.getDashboard = async (token) => {
-  const [inventory, finance] = await Promise.all([
-    exports.getInventorySummary(token),
-    exports.getFinanceSummary(token),
-  ]);
+  try {
+    const [inventory, finance] = await Promise.all([
+      exports.getInventorySummary(token).catch(() => null),
+      exports.getFinanceSummary(token).catch(() => null),
+    ]);
 
-  return {
-    inventory,
-    finance,
-  };
+    return {
+      inventory: inventory || {},
+      finance: finance || {},
+    };
+  } catch (err) {
+    throw new Error("Failed to load dashboard");
+  }
 };

@@ -17,7 +17,11 @@ const notificationSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    // Optional: which entity triggered this notification
+    source: {
+      type: String,
+      enum: ["inventory", "ai", "finance", "system"],
+      default: "system",
+    },
     refId: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,

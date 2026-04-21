@@ -18,7 +18,8 @@ const { authorizeRoles } = require("../../../../shared/middleware/role.middlewar
 router.get("/unread-count", verifyToken, getUnreadCount);
 router.patch("/read-all", verifyToken, markAllAsRead);
 
-router.post("/", verifyToken, authorizeRoles("admin", "manager"), createNotification);
+// router.post("/", verifyToken, authorizeRoles("admin", "manager"), createNotification); // service-to-service token
+router.post("/", verifyToken, createNotification);
 router.get("/", verifyToken, getNotifications);
 router.patch("/:id/read", verifyToken, markAsRead);
 router.delete("/:id", verifyToken, authorizeRoles("admin"), deleteNotification);

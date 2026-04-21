@@ -1,11 +1,15 @@
 const notificationService = require("../services/notification.service");
 
-// ──────────────────────────────────────────────
-// NOTIFICATION OPERATIONS
-// ──────────────────────────────────────────────
 
 exports.createNotification = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     const data = {
       ...req.body,
       companyId: req.user.companyId,
@@ -13,9 +17,15 @@ exports.createNotification = async (req, res) => {
 
     const notification = await notificationService.createNotification(data);
 
-    res.status(201).json({ success: true, notification });
+    res.status(201).json({
+      success: true,
+      notification,
+    });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 

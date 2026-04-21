@@ -14,6 +14,7 @@ const COST = "http://localhost:5004";
 const FINANCE = "http://localhost:5005";
 const REPORTS = "http://localhost:5006";
 const NOTIFICATIONS = "http://localhost:5007";
+const PROCUREMENT = "http://localhost:5008";
 
 // AUTH SERVICE
 app.use("/auth", async (req, res) => {
@@ -84,7 +85,7 @@ app.use("/inventory", async (req, res) => {
 
     const response = await axios({
       method: req.method,
-      url: `${INVENTORY}/api/inventory${path}`, // ✅ correct mapping
+      url: `${INVENTORY}/api/inventory${path}`,
       data: req.body,
       headers: {
         "Content-Type": "application/json",
@@ -247,6 +248,36 @@ app.use("/notifications", async (req, res) => {
 
   } catch (err) {
     console.log("Notification Gateway error:", err.message);
+
+    return res.status(err.response?.status || 500).json({
+      success: false,
+      message: err.response?.data || err.message,
+    });
+  }
+});
+
+// PROCUREMENT SERVICE
+app.use("/procurement", async (req, res) => {
+  try {
+    const path = req.originalUrl.replace("/procurement", "");
+
+    console.log("Procurement Gateway hit:", req.method, path);
+
+    const response = await axios({
+      method: req.method,
+      url: `http://localhost:5008/api/procurement${path}`,
+      data: req.body,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: req.headers.authorization || "",
+      },
+      timeout: 5000,
+    });
+
+    return res.status(response.status).json(response.data);
+
+  } catch (err) {
+    console.log("Procurement Gateway error:", err.message);
 
     return res.status(err.response?.status || 500).json({
       success: false,

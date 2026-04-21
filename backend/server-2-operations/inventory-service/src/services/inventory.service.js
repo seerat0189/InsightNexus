@@ -1,5 +1,8 @@
 const InventoryItem = require("../models/InventoryItem");
 const StockHistory = require("../models/StockHistory");
+const axios = require("axios");
+
+const NOTIFICATION_SERVICE = "http://localhost:5007";
 
 exports.createItem = async (data) => {
   const item = await InventoryItem.create(data);
@@ -19,7 +22,7 @@ exports.getItems = async (companyId) => {
   return await InventoryItem.find({ companyId });
 };
 
-exports.updateStock = async (itemId, companyId, change, type, supplierId = null) => {
+exports.updateStock = async (itemId, companyId, change, type, supplierId = null, token) => {
   if (!["add", "usage", "adjustment", "defect"].includes(type)) {
     throw new Error("Invalid stock type");
   }
@@ -52,6 +55,28 @@ exports.updateStock = async (itemId, companyId, change, type, supplierId = null)
   });
 
   const lowStock = item.quantity < item.reorderLevel;
+
+  if (lowStock) {
+    try {
+      await axios.post(
+        `${NOTIFICATION_SERVICE}/api/notifications`,
+        {
+          type: "low_stock",
+          source: "inventory",
+          message: `${item.name} is below reorder level`,
+          itemId: item._id,
+          companyId,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+    } catch (err) {
+      console.log("Notification service error:", err.message);
+    }
+  }
 
   return { item, lowStock };
 };

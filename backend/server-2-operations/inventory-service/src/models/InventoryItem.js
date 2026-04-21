@@ -22,6 +22,11 @@ const inventoryItemSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    reorderQuantity: {
+      type: Number,
+      default: 10,
+      min: 1,
+    },
     supplierId: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,

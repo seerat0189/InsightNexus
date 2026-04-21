@@ -1,9 +1,5 @@
 const supplierService = require("../services/supplier.service");
 
-// ──────────────────────────────────────────────
-// SUPPLIER CRUD
-// ──────────────────────────────────────────────
-
 exports.createSupplier = async (req, res) => {
   try {
     const data = {
@@ -57,10 +53,6 @@ exports.deleteSupplier = async (req, res) => {
   }
 };
 
-// ──────────────────────────────────────────────
-// PERFORMANCE
-// ──────────────────────────────────────────────
-
 exports.upsertPerformance = async (req, res) => {
   try {
     const { supplierId } = req.params;
@@ -108,5 +100,43 @@ exports.getAllPerformance = async (req, res) => {
     res.status(200).json({ success: true, performances });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getBestSupplier = async (req, res) => {
+  try {
+    const supplier = await supplierService.getBestSupplier(req.user.companyId);
+
+    res.status(200).json({
+      success: true,
+      supplier,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.addDeliveryRecord = async (req, res) => {
+  try {
+    const { supplierId } = req.params;
+
+    const delivery = await supplierService.addDeliveryRecord(
+      supplierId,
+      req.user.companyId,
+      req.body
+    );
+
+    res.status(201).json({
+      success: true,
+      delivery,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
