@@ -1,4 +1,5 @@
 const inventoryService = require("../services/inventory.service");
+const InventoryItem = require("../models/InventoryItem");
 
 exports.createItem = async (req, res) => {
   try {
@@ -48,6 +49,22 @@ exports.updateStock = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Authorization token missing",
+      });
+    }
+
+    if (typeof change !== "number") {
+      return res.status(400).json({
+        success: false,
+        message: "Change must be a number",
+      });
+    }
+
+    const validTypes = ["add", "usage", "adjustment", "defect"];
+
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid stock type",
       });
     }
 
@@ -102,8 +119,57 @@ exports.updateReorder = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ success: true, item });
+    res.status(200).json({
+      success: true,
+      item,
+    });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.reduceStock = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { quantity, type = "usage" } = req.body;
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be positive",
+      });
+    }
+
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing",
+      });
+    }
+
+    const result = await inventoryService.updateStock(
+      itemId,
+      req.user.companyId,
+      -Math.abs(quantity),
+      type,
+      null,
+      token
+    );
+
+    res.status(200).json({
+      success: true,
+      item: result.item,
+      lowStock: result.lowStock,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };

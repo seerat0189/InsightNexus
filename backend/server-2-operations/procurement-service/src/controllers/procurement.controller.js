@@ -7,7 +7,9 @@ exports.createOrder = async (req, res) => {
       companyId: req.user.companyId,
     };
 
-    const order = await procurementService.createOrder(data);
+    const token = req.headers.authorization;
+
+    const order = await procurementService.createOrder(data, token);
 
     res.status(201).json({ success: true, order });
   } catch (err) {

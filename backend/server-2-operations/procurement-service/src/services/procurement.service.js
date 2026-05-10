@@ -3,6 +3,12 @@ const axios = require("axios");
 
 const { INVENTORY_SERVICE, SUPPLIER_SERVICE, FINANCE_SERVICE } = require("../../../../shared/constants/serviceUrls");
 
+const getAuthHeader = (token) => ({
+  Authorization: token && token.startsWith("Bearer ")
+    ? token
+    : `Bearer ${token}`,
+});
+
 exports.createOrder = async (data, token) => {
   if (!data.items || data.items.length === 0) {
     throw new Error("Items required");
@@ -11,7 +17,7 @@ exports.createOrder = async (data, token) => {
   const inventoryRes = await axios.get(
     `${INVENTORY_SERVICE}/api/inventory`,
     {
-      headers: { Authorization: token },
+      headers: getAuthHeader(token),
     }
   );
 
@@ -40,18 +46,14 @@ exports.createOrder = async (data, token) => {
   let supplierId = data.supplierId;
 
   if (!supplierId) {
-    try {
-      const res = await axios.get(
-        `${SUPPLIER_SERVICE}/api/supplier/best`,
-        {
-          headers: { Authorization: token },
-        }
-      );
+    const res = await axios.get(
+      `${SUPPLIER_SERVICE}/api/supplier/best`,
+      {
+        headers: getAuthHeader(token),
+      }
+    );
 
-      supplierId = res.data.supplier._id;
-    } catch (err) {
-      throw new Error("Failed to fetch best supplier");
-    }
+    supplierId = res.data.supplier._id;
   }
 
   const order = await PurchaseOrder.create({
@@ -61,7 +63,6 @@ exports.createOrder = async (data, token) => {
 
   return order;
 };
-
 exports.getOrders = async (companyId) => {
   return await PurchaseOrder.find({ companyId });
 };

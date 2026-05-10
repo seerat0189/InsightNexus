@@ -22,13 +22,28 @@ exports.getItems = async (companyId) => {
   return await InventoryItem.find({ companyId });
 };
 
-exports.updateStock = async (itemId, companyId, change, type, supplierId = null, token) => {
+exports.updateStock = async (
+  itemId,
+  companyId,
+  change,
+  type,
+  supplierId = null,
+  token
+) => {
   if (!["add", "usage", "adjustment", "defect"].includes(type)) {
     throw new Error("Invalid stock type");
   }
 
   if (typeof change !== "number" || change === 0) {
     throw new Error("Invalid stock change");
+  }
+
+  if (type === "add" && change < 0) {
+    throw new Error("Add operation must increase stock");
+  }
+
+  if (["usage", "defect"].includes(type) && change > 0) {
+    throw new Error(`${type} operation must reduce stock`);
   }
 
   const item = await InventoryItem.findOne({ _id: itemId, companyId });
@@ -73,6 +88,7 @@ exports.updateStock = async (itemId, companyId, change, type, supplierId = null,
           },
         }
       );
+
     } catch (err) {
       console.log("Notification service error:", err.message);
     }
