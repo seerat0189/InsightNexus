@@ -1,7 +1,7 @@
 const PurchaseOrder = require("../models/PurchaseOrder");
 const axios = require("axios");
 
-const { INVENTORY_SERVICE, SUPPLIER_SERVICE, FINANCE_SERVICE } = require("../../../../shared/constants/serviceUrls");
+const { INVENTORY_SERVICE, SUPPLIER_SERVICE, FINANCE_SERVICE, NOTIFICATION_SERVICE } = require("../../../../shared/constants/serviceUrls");
 
 const getAuthHeader = (token) => ({
   Authorization: token && token.startsWith("Bearer ")
@@ -22,6 +22,7 @@ exports.createOrder = async (data, token) => {
   );
 
   const inventoryItems = inventoryRes.data.items;
+  let totalAmount = 0;
 
   for (let item of data.items) {
     const inventoryItem = inventoryItems.find(
@@ -32,9 +33,11 @@ exports.createOrder = async (data, token) => {
       throw new Error("Inventory item not found");
     }
 
-    if (!item.quantity) {
+    if (item.quantity == null || item.quantity <= 0) {
       item.quantity = inventoryItem.reorderQuantity || 10;
     }
+
+    totalAmount += (inventoryItem.unitPrice || 0) * item.quantity;
 
     if (inventoryItem.reorderQuantity < inventoryItem.reorderLevel) {
       console.log(
@@ -59,7 +62,26 @@ exports.createOrder = async (data, token) => {
   const order = await PurchaseOrder.create({
     ...data,
     supplierId,
+    totalAmount,
   });
+
+  try {
+    const orderIdShort = order._id.toString().slice(-6).toUpperCase();
+    await axios.post(
+      `${NOTIFICATION_SERVICE}/api/notifications`,
+      {
+        type: "general",
+        source: "finance",
+        message: `New Purchase Order PO-${orderIdShort} created for $${totalAmount.toFixed(2)}`,
+        refId: order._id,
+      },
+      {
+        headers: getAuthHeader(token),
+      }
+    );
+  } catch (err) {
+    console.log("Procurement notification error:", err.message);
+  }
 
   return order;
 };
@@ -84,6 +106,28 @@ exports.updateOrderStatus = async (orderId, status, token) => {
 
   order.status = status;
   await order.save();
+
+  try {
+    const orderIdShort = order._id.toString().slice(-6).toUpperCase();
+    let msg = `Purchase Order PO-${orderIdShort} status updated to '${status.toUpperCase()}'`;
+    if (status === "delivered") {
+      msg = `Purchase Order PO-${orderIdShort} delivered. Stock levels replenished and expense recorded.`;
+    }
+    await axios.post(
+      `${NOTIFICATION_SERVICE}/api/notifications`,
+      {
+        type: "general",
+        source: "finance",
+        message: msg,
+        refId: order._id,
+      },
+      {
+        headers: getAuthHeader(token),
+      }
+    );
+  } catch (err) {
+    console.log("Procurement status notification error:", err.message);
+  }
 
   if (status === "delivered") {
     try {

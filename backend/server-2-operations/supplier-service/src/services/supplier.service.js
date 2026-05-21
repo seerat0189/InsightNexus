@@ -106,7 +106,11 @@ exports.getBestSupplier = async (companyId) => {
   const performances = await SupplierPerformance.find({ companyId }).lean();
 
   if (!performances.length) {
-    throw new Error("No supplier performance data found");
+    const fallbackSupplier = await Supplier.findOne({ companyId }).lean();
+    if (!fallbackSupplier) {
+      throw new Error("No supplier performance data or suppliers found");
+    }
+    return fallbackSupplier;
   }
 
   const enriched = await Promise.all(

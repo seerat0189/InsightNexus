@@ -57,9 +57,9 @@ exports.register = async (req, res) => {
 
     let payload;
     if (action === 'create') {
-      payload = { action: 'create', userId: user._id, companyName, industry };
+      payload = { action: 'create', userId: user._id, name: user.name, email: user.email, companyName, industry };
     } else {
-      payload = { action: 'join', userId: user._id, companyCode };
+      payload = { action: 'join', userId: user._id, name: user.name, email: user.email, companyCode };
     }
 
     let companyId;
@@ -196,5 +196,36 @@ exports.logout = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error during logout' });
+  }
+};
+
+// ================= UPDATE ROLE INTERNAL =================
+exports.updateRoleInternal = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (!['admin', 'manager', 'user'].includes(role)) {
+      return res.status(400).json({ success: false, message: 'Invalid role' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User role updated in Auth Service',
+      user,
+    });
+  } catch (err) {
+    console.error('Error updating role internally:', err);
+    res.status(500).json({ success: false, message: 'Server error updating role internally' });
   }
 };

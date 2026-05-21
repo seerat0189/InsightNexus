@@ -43,3 +43,16 @@ exports.getRunway = async (companyId, currentBalance) => {
 
   return { runway, burnRate };
 };
+
+exports.deleteTransaction = async (id, companyId) => {
+  return await prisma.transaction.delete({
+    where: { id: parseInt(id), companyId },
+  });
+};
+
+exports.updateTransaction = async (id, companyId, updates) => {
+  return await prisma.transaction.update({
+    where: { id: parseInt(id), companyId },
+    data: updates,
+  });
+};

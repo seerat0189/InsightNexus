@@ -14,10 +14,11 @@ datasource db {
 }
 
 model Transaction {
-  id         Int      @id @default(autoincrement())
-  type       String
-  amount     Float
-  category   String
-  companyId  String
-  createdAt  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  type        String
+  amount      Float
+  category    String
+  description String?
+  companyId   String
+  createdAt   DateTime @default(now())
 }

@@ -8,7 +8,8 @@ exports.createItem = async (req, res) => {
       companyId: req.user.companyId,
     };
 
-    const item = await inventoryService.createItem(data);
+    const token = req.headers.authorization;
+    const item = await inventoryService.createItem(data, token);
 
     res.status(201).json({
       success: true,
@@ -93,8 +94,9 @@ exports.updateStock = async (req, res) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { itemId } = req.params;
+    const token = req.headers.authorization;
 
-    await inventoryService.deleteItem(itemId, req.user.companyId);
+    await inventoryService.deleteItem(itemId, req.user.companyId, token);
 
     res.status(200).json({
       success: true,
@@ -158,6 +160,39 @@ exports.reduceStock = async (req, res) => {
       -Math.abs(quantity),
       type,
       null,
+      token
+    );
+
+    res.status(200).json({
+      success: true,
+      item: result.item,
+      lowStock: result.lowStock,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+exports.updateItem = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const updates = req.body;
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing",
+      });
+    }
+
+    const result = await inventoryService.updateItem(
+      itemId,
+      req.user.companyId,
+      updates,
       token
     );
 

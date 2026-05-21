@@ -4,7 +4,7 @@ const { nanoid } = require('nanoid');
 
 exports.setupCompany = async (req, res) => {
   try {
-    const { action, userId, companyName, industry, companyCode } = req.body;
+    const { action, userId, name, email, companyName, industry, companyCode } = req.body;
 
     if (!action || !userId) {
       return res.status(400).json({ success: false, message: 'action and userId are required' });
@@ -30,6 +30,8 @@ exports.setupCompany = async (req, res) => {
         userId,
         companyId: company._id,
         role: 'admin',
+        name,
+        email,
       });
 
       return res.status(201).json({
@@ -66,6 +68,8 @@ exports.setupCompany = async (req, res) => {
         userId,
         companyId: company._id,
         role: 'user',
+        name,
+        email,
       });
 
       return res.status(200).json({

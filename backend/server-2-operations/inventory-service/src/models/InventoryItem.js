@@ -7,6 +7,10 @@ const inventoryItemSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    category: {
+      type: String,
+      default: "General",
+    },
     quantity: {
       type: Number,
       required: true,
@@ -15,17 +19,21 @@ const inventoryItemSchema = new mongoose.Schema(
     },
     unit: {
       type: String,
-      required: true,
+      default: "pcs",
+    },
+    unitPrice: {
+      type: Number,
+      default: 0,
     },
     reorderLevel: {
       type: Number,
-      required: true,
+      default: 5,
       min: 0,
     },
     reorderQuantity: {
       type: Number,
       default: 10,
-      min: 1,
+      min: 0,
     },
     supplierId: {
       type: mongoose.Schema.Types.ObjectId,

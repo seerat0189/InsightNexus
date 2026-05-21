@@ -7,6 +7,7 @@ const {
   validateToken,
   getMe,
   logout,
+  updateRoleInternal,
 } = require('../controllers/auth.controller');
 
 const { verifyToken } = require('../../../../shared/middleware/auth.middleware');
@@ -19,5 +20,8 @@ router.post('/login', login);
 router.get('/validate', verifyToken, validateToken);
 router.get('/me', verifyToken, getMe);
 router.post('/logout', verifyToken, logout);
+
+// Internal routes
+router.patch('/internal/user/:userId/role', updateRoleInternal);
 
 module.exports = router;

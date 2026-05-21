@@ -22,6 +22,11 @@ const supplierSchema = new mongoose.Schema(
       trim: true,
       default: null,
     },
+    category: {
+      type: String,
+      trim: true,
+      default: "General",
+    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,

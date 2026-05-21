@@ -77,3 +77,22 @@ exports.getRunway = async (req, res) => {
     });
   }
 };
+exports.deleteTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await financeService.deleteTransaction(id, req.user.companyId);
+    res.status(200).json({ success: true, message: "Transaction deleted" });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const transaction = await financeService.updateTransaction(id, req.user.companyId, req.body);
+    res.status(200).json({ success: true, transaction });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};

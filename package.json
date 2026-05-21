@@ -1,0 +1,12 @@
+{
+  "name": "insight-nexus-root",
+  "version": "1.0.0",
+  "description": "Root management for InsightNexus microservices",
+  "scripts": {
+    "install-all": "powershell -ExecutionPolicy Bypass -File ./setup.ps1",
+    "dev": "concurrently --kill-others -n \"GATEWAY,AUTH,USER,INVENTORY,SUPPLIER,PROCURE,COST,FINANCE,REPORT,NOTIFY,FRONT\" -c \"cyan,magenta,blue,green,yellow,red,white,gray,black,bgBlue,bgGreen\" \"npx nodemon backend/api-gateway/app.js\" \"npm run dev --prefix backend/server-1-core/auth-service\" \"npm run dev --prefix backend/server-1-core/user-service\" \"npm run dev --prefix backend/server-2-operations/inventory-service\" \"npm run dev --prefix backend/server-2-operations/supplier-service\" \"npm run dev --prefix backend/server-2-operations/procurement-service\" \"npm run dev --prefix backend/server-3-finance/cost-intelligence-service\" \"npm run dev --prefix backend/server-3-finance/finance-service\" \"npm run dev --prefix backend/server-4-intelligence/reports-service\" \"npm run dev --prefix backend/server-4-intelligence/notification-service\" \"npm run dev --prefix frontend/insight-nexus\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

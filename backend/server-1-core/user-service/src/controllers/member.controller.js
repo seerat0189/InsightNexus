@@ -1,4 +1,5 @@
 const CompanyUsers = require('../models/CompanyUsers');
+const axios = require('axios');
 
 exports.listMembers = async (req, res) => {
   try {
@@ -51,6 +52,17 @@ exports.updateMemberRole = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Member not found',
+      });
+    }
+
+    // Sync role update to Auth Service
+    try {
+      await axios.patch(`http://localhost:5000/api/auth/internal/user/${userId}/role`, { role });
+    } catch (authErr) {
+      console.error('Failed to sync role update to Auth Service:', authErr.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to sync role update to authorization service: ' + (authErr.response?.data?.message || authErr.message),
       });
     }
 

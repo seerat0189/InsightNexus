@@ -21,6 +21,10 @@ app.use("/auth", async (req, res) => {
   try {
     console.log("Gateway hit:", req.method, req.originalUrl);
 
+    if (req.originalUrl.includes("/internal/")) {
+      return res.status(403).json({ success: false, message: "Forbidden: Internal microservice route" });
+    }
+
     const response = await axios({
       method: req.method,
       url: `${AUTH}/api${req.originalUrl}`,
@@ -41,7 +45,7 @@ app.use("/auth", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -71,7 +75,7 @@ app.use("/user", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -101,7 +105,7 @@ app.use("/inventory", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -131,7 +135,7 @@ app.use("/finance", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -161,7 +165,7 @@ app.use("/reports", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -191,7 +195,7 @@ app.use("/supplier", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -221,7 +225,7 @@ app.use("/cost", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -251,7 +255,7 @@ app.use("/notifications", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
@@ -281,7 +285,7 @@ app.use("/procurement", async (req, res) => {
 
     return res.status(err.response?.status || 500).json({
       success: false,
-      message: err.response?.data || err.message,
+      message: err.response?.data?.message || (typeof err.response?.data === 'object' ? JSON.stringify(err.response.data) : err.response?.data) || err.message,
     });
   }
 });
